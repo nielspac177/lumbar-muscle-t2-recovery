@@ -1,0 +1,9 @@
+pandas>=2.0
+numpy>=1.24
+openpyxl>=3.1        # read .xlsx
+scipy>=1.10
+statsmodels>=0.14    # OLS, logistic, mixed-effects, robust SE
+matplotlib>=3.7
+seaborn>=0.13
+pyyaml>=6.0          # config
+tableone>=0.9        # Table 1 (cohort characteristics)

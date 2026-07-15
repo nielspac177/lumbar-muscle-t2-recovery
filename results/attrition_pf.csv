@@ -1,0 +1,10 @@
+outcome,variable,completer_mean,completer_n,noncompleter_mean,noncompleter_n,p
+pf,age,61.311,169,63.94,215,0.056
+pf,pf_base,33.705,123,33.595,41,0.9269
+pf,odi_base,47.488,123,52.282,39,0.1552
+pf,leg_base,6.023,132,6.489,45,0.3547
+pf,iliopsoas_vol,185.65,169,178.518,216,0.376
+pf,iliopsoas_qual,139.956,169,98.134,215,0.0039
+pf,iliopsoas_rcord,0.219,164,0.188,209,0.0612
+pf,z_iliopsoas_texture,-0.1,169,0.088,215,0.0721
+pf,female,0.42,169,0.509,216,0.1018

@@ -1,0 +1,50 @@
+# ============================================================
+# DATA & PHI — NEVER COMMIT. This repo is code-only.
+# ============================================================
+*.xlsx
+*.xls
+*.csv
+*.tsv
+*.parquet
+*.dta
+*.sav
+*.dcm
+data/
+# source data directory and workbook (any name) — never commit
+*_segments_*/
+**/*.xlsx
+# real config (contains absolute data path) — use config.example.yaml as template
+config.yaml
+
+# Analysis outputs (regenerable)
+figures/*
+!figures/.gitkeep
+results/*
+!results/.gitkeep
+# Commit the aggregate result tables (model estimates only — no PHI, no row-level
+# data) so reviewers can diff reported numbers against docs/NUMBERS_LEDGER.md.
+!results/*.csv
+
+# Built manuscript/submission artifacts (regenerable via `make docx` / `scripts/build_submission.sh`)
+submission/*.docx
+submission/*.pdf
+submission/*.tif
+submission/figures_tiff/
+# Hand-edited / rendered final figures (regenerable base + pending de-identified MRI
+# panels — do NOT commit until images are confirmed PHI-free)
+Final_Figures/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+*.egg-info/
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

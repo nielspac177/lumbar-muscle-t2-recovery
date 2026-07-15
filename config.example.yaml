@@ -1,0 +1,21 @@
+# Copy this file to config.yaml (which is gitignored) and set the absolute path
+# to the dataset on your machine. The data file is NEVER stored in the repo.
+
+# Absolute path to the source Excel workbook (lives outside the repo)
+DATA_PATH: "/path/to/your/lumbar_decompression_workbook.xlsx"
+SHEET: "Complete"
+
+# Header parsing: row 0 = structure group, row 1 = metric, data starts row 2
+HEADER_GROUP_ROW: 0
+HEADER_METRIC_ROW: 1
+DATA_START_ROW: 2
+
+# Analysis choices (see PLAN.md)
+VOLUME_METRIC: "Volume ( LM) cm3"   # which of the two volume methods to use
+QUALITY_METRIC: "mean"              # intensity mean = muscle-quality proxy
+PRIMARY_OUTCOME: "PROMIS Physical Function"
+
+# Minimal clinically important difference thresholds (points)
+PROMIS_PF_MCID: 4.5    # PROMIS Physical Function
+ODI_MCID: 12.8         # Oswestry Disability Index
+GLOBAL_PH_MCID: 5.0    # PROMIS Global-10 Physical Health (~half-SD T-score)

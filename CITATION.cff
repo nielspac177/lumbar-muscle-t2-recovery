@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "lumbar-muscle-pro: Scanner-normalized paraspinal and iliopsoas muscle T2 analysis for lumbar decompression recovery"
+type: software
+authors:
+  - family-names: "Pacheco-Barrios"
+    given-names: "Niels"
+    affiliation: "Department of Neurosurgery, Beth Israel Deaconess Medical Center, Harvard Medical School"
+repository-code: "https://github.com/USER/lumbar-muscle-pro"
+license: MIT
+version: "1.0.0"
+date-released: "2026-07-08"
+keywords:
+  - lumbar decompression
+  - paraspinal muscle
+  - MRI T2 signal
+  - PROMIS
+  - reproducible research
+abstract: >-
+  Reproducible analysis code for a retrospective cohort study of whether
+  scanner-normalized preoperative paraspinal and iliopsoas muscle T2 signal
+  predicts functional recovery after lumbar decompression. Code-only; no
+  patient data are distributed.

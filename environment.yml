@@ -1,0 +1,22 @@
+# Conda alternative to the pip workflow. Reproduces the analysis environment.
+#   conda env create -f environment.yml && conda activate lumbar-muscle-pro
+# For exact pinned versions used to generate the published results, see
+# requirements.lock (pip) and docs/ENVIRONMENT.md.
+name: lumbar-muscle-pro
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - pandas>=2.0
+  - numpy>=1.24
+  - scipy>=1.10
+  - statsmodels>=0.14
+  - matplotlib>=3.7
+  - seaborn>=0.13
+  - openpyxl>=3.1
+  - pyyaml>=6.0
+  - pip
+  - pip:
+      - tableone>=0.9
+      - pytest>=7.4
+      - ruff>=0.4
