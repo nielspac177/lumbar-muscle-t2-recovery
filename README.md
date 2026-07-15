@@ -1,7 +1,7 @@
-# Muscle T2 signal and recovery after lumbar decompression — analysis code
+# Muscle T2 signal and recovery after lumbar decompression analysis code
 
 This is the code behind the paper. It runs the analysis end to end, and it's public so
-the results can be checked and rerun instead of taken on trust. There's no patient data
+the results can be checked and rerun instead of being taken on trust. There's no patient data
 and no manuscript here: just the pipeline, the tests, the pinned environment, the
 aggregate result tables, and notes on why each modeling choice was made. The one image
 is the methods schematic below, and it contains no patient data.
@@ -9,7 +9,7 @@ is the methods schematic below, and it contains no patient data.
 ## What the study looked at
 
 A retrospective cohort at one academic center: 385 adults who had a lumbar
-decompression and a usable preoperative MRI between 2016 and 2024, reported to STROBE.
+Decompression and a usable preoperative MRI between 2016 and 2024, reported to STROBE.
 
 The exposures are two MRI measures of the iliopsoas and deep back muscles. The first is
 mean T2 signal divided by a central-canal reference on the same image, which keeps it
