@@ -6,7 +6,7 @@ authors:
   - family-names: "Pacheco-Barrios"
     given-names: "Niels"
     affiliation: "Department of Neurosurgery, Beth Israel Deaconess Medical Center, Harvard Medical School"
-repository-code: "https://github.com/USER/lumbar-muscle-pro"
+repository-code: "https://github.com/nielspac177/lumbar-muscle-t2-recovery"
 license: MIT
 version: "1.0.0"
 date-released: "2026-07-08"

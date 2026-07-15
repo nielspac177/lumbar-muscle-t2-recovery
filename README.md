@@ -4,9 +4,20 @@ Reproducible analysis code for an observational study of **preoperative paraspin
 and iliopsoas muscle MRI T2 signal and functional recovery after lumbar
 decompression** (retrospective single-center cohort, N = 385).
 
-This repository is **code and analysis documentation only**. It contains no
-manuscript, no figures, and no patient data. Its purpose is to let others read the
-exact analysis, inspect the modeling choices, and reproduce every reported statistic.
+This repository is **code and analysis documentation only** — no manuscript and no
+patient data. Its purpose is to let others read the exact analysis, inspect the
+modeling choices, and reproduce every reported statistic. The one figure included is
+the methods schematic below (a PHI-free overview of the pipeline).
+
+## Analysis overview
+
+![Study methodology overview: preoperative axial T2 MRI and L3–L5 segmentation; cord-normalized T2 signal and heterogeneity index; cohort derivation and 1-year outcome change; adjusted change models with HC3 robust SE, MCID logistic regression, the leg-pain negative control, and multiplicity/fragility assessment.](docs/img/methods_overview.png)
+
+*Preoperative axial T2 MRI and L3–L5 segmentation → cord-normalized T2 signal and a
+heterogeneity (texture) index → cohort derivation and 1-year outcome change →
+adjusted change models (HC3 robust SE), MCID logistic regression, a leg-pain negative
+control, and multiplicity/fragility assessment. Anatomical panels are schematic and
+contain no patient data.*
 
 ## What the analysis does
 
