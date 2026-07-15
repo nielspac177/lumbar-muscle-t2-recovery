@@ -1,124 +1,107 @@
-# Reproducible analysis: preoperative paraspinal and iliopsoas muscle T2 signal and functional recovery after lumbar decompression
+# Muscle T2 signal and recovery after lumbar decompression — analysis code
 
-Analysis code and computational provenance for a retrospective, single-center cohort
-study (N = 385). This repository accompanies the manuscript and exists to make the
-analysis transparent and independently reproducible. It provides the analysis
-pipeline, the unit tests, the pinned software environment, the aggregate result
-tables, and the decision records that document each methodological choice.
+This is the code behind the paper. It runs the analysis end to end, and it's public so
+the results can be checked and rerun instead of taken on trust. There's no patient data
+and no manuscript here: just the pipeline, the tests, the pinned environment, the
+aggregate result tables, and notes on why each modeling choice was made. The one image
+is the methods schematic below, and it contains no patient data.
 
-The repository holds **no patient data and no manuscript**. The only figure is the
-methods schematic below, which contains no patient data.
+## What the study looked at
 
-## Study summary
+A retrospective cohort at one academic center: 385 adults who had a lumbar
+decompression and a usable preoperative MRI between 2016 and 2024, reported to STROBE.
 
-- **Design.** Retrospective observational cohort, reported per the STROBE guideline.
-- **Setting and participants.** A single academic medical center, 2016–2024; 385
-  adults who underwent lumbar decompression and had a preoperative volumetric MRI
-  amenable to L3–L5 muscle segmentation.
-- **Exposures.** Cord-normalized mean T2 signal (muscle intensity divided by a
-  same-image central-canal reference) and an intramuscular T2 heterogeneity (texture)
-  index for the iliopsoas and deep back muscles, standardized within the cohort.
-- **Outcomes.** Change in the Oswestry Disability Index and PROMIS Global Physical
-  Health through one year, and attainment of each instrument's minimal clinically
-  important difference (MCID).
-- **Statistical analysis.** Covariate-adjusted change-score models (age, sex, and
-  baseline value) with HC3 heteroskedasticity-consistent standard errors; MCID
-  logistic regression; a prespecified radicular leg-pain negative control; and
-  Holm and Benjamini–Hochberg multiplicity correction, a fragility-index analysis,
-  and inverse-probability-of-attrition weighting as sensitivity analyses.
+The exposures are two MRI measures of the iliopsoas and deep back muscles. The first is
+mean T2 signal divided by a central-canal reference on the same image, which keeps it
+from riding on scanner and sequence settings. The second is a texture index for how
+patchy that signal is. Both are standardized within the cohort. The outcomes are
+one-year change in the Oswestry Disability Index and PROMIS Global Physical Health, and
+whether each patient cleared that instrument's minimal clinically important difference
+(MCID).
 
-The cord-normalized T2 analysis was developed after a prespecified (and null) muscle-
-volume analysis. It is therefore post-hoc, and the findings are hypothesis-generating;
-the source code and the architecture decision records (`docs/adr/`) state this
-explicitly.
+The models are change scores adjusted for age, sex, and baseline, with HC3 robust
+standard errors; MCID attainment is logistic. Radicular leg pain is the negative
+control, since it should not track muscle signal if the effect is real and local.
+Holm and Benjamini–Hochberg correction, a fragility index, and
+inverse-probability-of-attrition weighting are all included as sensitivity checks.
 
-## Analysis overview
+One thing to be clear about: the T2-signal analysis came after a prespecified volume
+analysis that was null. So it is post-hoc, and the findings are hypothesis-generating
+rather than confirmatory. The code and the decision records under `docs/adr/` say so
+plainly.
 
-![Study methodology overview: preoperative axial T2 MRI and L3–L5 segmentation; cord-normalized T2 signal and heterogeneity index; cohort derivation and 1-year outcome change; adjusted change models with HC3 robust standard errors, MCID logistic regression, a leg-pain negative control, and multiplicity and fragility assessment.](docs/img/methods_overview.png)
+## Methods overview
 
-*Preoperative axial T2 MRI and L3–L5 segmentation yield the cord-normalized T2 signal
-and the heterogeneity (texture) index; the cohort is derived and one-year outcome
-change computed; the estimands are then obtained from covariate-adjusted change models
-(HC3 robust standard errors), MCID logistic regression, a leg-pain negative control,
-and multiplicity and fragility assessment. Anatomical panels are schematic and contain
-no patient data.*
+![Study methodology overview: preoperative axial T2 MRI and L3–L5 segmentation; cord-normalized T2 signal and a heterogeneity index; cohort derivation and 1-year outcome change; adjusted change models with HC3 robust standard errors, MCID logistic regression, a leg-pain negative control, and multiplicity and fragility assessment.](docs/img/methods_overview.png)
 
-## Software environment
+*From preoperative axial T2 MRI and L3–L5 segmentation to the cord-normalized signal
+and heterogeneity index, then cohort derivation and one-year outcome change, then the
+adjusted change models, MCID logistic regression, the leg-pain negative control, and
+the multiplicity and fragility checks. The anatomical panels are schematic and hold no
+patient data.*
 
-The analysis targets Python 3.11–3.13 (the continuous-integration matrix). Exact
-dependency versions used to produce the committed results are pinned in
-[`requirements.lock`](requirements.lock); the interpreter, operating system, and
-package provenance are recorded in [`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md). The
-pipeline performs no random number generation and is therefore deterministic: repeated
-runs produce byte-identical `results/`, which `make verify` asserts.
-
-## Reproducing the results
+## Running it
 
 ```bash
-make setup                              # create .venv and install pinned dependencies
-cp config.example.yaml config.yaml      # then set DATA_PATH to the local workbook
+make setup                              # create .venv and install the pinned dependencies
+cp config.example.yaml config.yaml      # then point DATA_PATH at the local workbook
 make repro                              # == python -m src.pipeline
-make verify                             # run twice; assert results/ are identical
+make verify                             # run twice and confirm results/ are identical
 ```
 
-`make repro` reads the source workbook and regenerates every table in `results/`.
-Because patient data are not distributed (see Data availability), full reproduction
-requires authorized access to that workbook.
+`make repro` reads the workbook and rebuilds everything under `results/`. You need the
+actual dataset for that, which is not in the repo (see below). Nothing in the pipeline
+draws on a random number generator, so two runs produce identical files; `make verify`
+is just that check made explicit. The interpreter and exact package versions used for
+the committed numbers are in `requirements.lock` and `docs/ENVIRONMENT.md`.
 
-## Verifying the reported numbers without the data
+## Checking the numbers without the data
 
-To allow the analysis to be checked without access to protected data, the **aggregate
-result tables** (model estimates only; no row-level data) are committed under
-[`results/`](results). Every statistic reported in the manuscript is traced to a
-specific `results/*.csv` cell and the function that produced it in
-[`docs/NUMBERS_LEDGER.md`](docs/NUMBERS_LEDGER.md), and contested quantities are
-independently re-derived in [`docs/STATS_VERIFICATION.md`](docs/STATS_VERIFICATION.md).
-The unit tests exercise the full modeling stack on small synthetic frames and require
-no patient data:
+You don't need the dataset to audit the results. The aggregate estimates, with no
+row-level data, are committed under `results/`, and every number in the paper points
+back to a specific cell and function in `docs/NUMBERS_LEDGER.md`. The contested ones are
+re-derived from scratch in `docs/STATS_VERIFICATION.md`. The tests run the full set of
+models on small hand-built frames, so they need no patient data:
 
 ```bash
-make test        # pytest on hand-constructed synthetic frames
+make test        # pytest
 make lint        # ruff
 ```
 
-Continuous integration runs the tests and linter on every push
-(`.github/workflows/ci.yml`).
+CI runs both on every push.
 
-## Repository layout
+## What's where
 
 | Path | Contents |
 | --- | --- |
 | `src/data_loading.py` | Read the source workbook and flatten its two-row header |
-| `src/cleaning.py` | Derive analysis variables; handle outliers and units |
-| `src/cohort.py` | Assemble the analytic cohort and the attrition/flow counts |
+| `src/cleaning.py` | Derive the analysis variables; handle outliers and units |
+| `src/cohort.py` | Build the analytic cohort and the attrition/flow counts |
 | `src/analysis.py` | Change-score models, MCID logistic regression, negative control |
 | `src/robustness.py` | Multiplicity, fragility, and IPW sensitivity analyses |
-| `src/pipeline.py` | End-to-end orchestration (`python -m src.pipeline`) |
-| `results/*.csv` | Committed aggregate estimates (no patient data) |
-| `docs/CODE_WALKTHROUGH.md` | Line-by-line explanation of the analysis code |
-| `docs/NUMBERS_LEDGER.md` | Each reported statistic mapped to its function and `results/` cell |
-| `docs/STATS_VERIFICATION.md` | Independent re-derivation of contested quantities |
-| `docs/DISCREPANCY_LOG.md` | Number-changing corrections and their effect |
-| `docs/adr/` | Architecture decision records (normalization, texture, HC3, exploratory status) |
-| `docs/ENVIRONMENT.md` | Interpreter, operating system, and dependency provenance |
-| `PLAN.md` | Original pre-analysis plan, retained for provenance |
+| `src/pipeline.py` | Runs the whole thing (`python -m src.pipeline`) |
+| `results/*.csv` | Committed aggregate estimates, no patient data |
+| `docs/CODE_WALKTHROUGH.md` | The analysis code explained, line by line |
+| `docs/NUMBERS_LEDGER.md` | Each reported number tied to its function and `results/` cell |
+| `docs/STATS_VERIFICATION.md` | Independent re-derivation of the contested numbers |
+| `docs/DISCREPANCY_LOG.md` | Corrections that moved a number, and by how much |
+| `docs/adr/` | Why each choice was made (normalization, texture, HC3, exploratory status) |
+| `docs/ENVIRONMENT.md` | Interpreter, OS, and dependency provenance |
+| `PLAN.md` | The original pre-analysis plan, kept for provenance |
 
-The `src/` modules that render figures are part of the reproducible pipeline; `make
-repro` writes them to a local, git-ignored `figures/` directory.
+The figure-drawing modules under `src/` are part of the pipeline; `make repro` writes
+their output to a local `figures/` directory that git ignores.
 
-## Data availability and ethics
+## Data and ethics
 
-The source dataset comprises imaging-derived muscle segmentations linked to
-longitudinal patient-reported outcomes and contains protected health information. **No
-patient data are stored in this repository.** The pipeline reads the workbook from a
-local path defined in `config.yaml`, which is excluded from version control;
-`.gitignore` additionally blocks tabular, spreadsheet, and imaging file formats as a
-second safeguard. Investigators with appropriate approvals may obtain the dataset
-through the study's data-governance process, as described in
-[`DATA_AVAILABILITY.md`](DATA_AVAILABILITY.md). The study was approved by the
-institutional review board with a waiver of informed consent.
+The dataset is muscle segmentations linked to patient-reported outcomes, so it is
+protected health information and stays out of the repository. The pipeline reads it from
+a local path set in `config.yaml`, which is git-ignored, and `.gitignore` also blocks
+spreadsheet and imaging formats as a backstop. Investigators with the appropriate
+approvals can obtain the data through the study's governance process, described in
+`DATA_AVAILABILITY.md`. The study was approved by the institutional review board with a
+waiver of consent.
 
 ## Citation and license
 
-Please cite this software using the metadata in [`CITATION.cff`](CITATION.cff). The
-code is released under the terms in [`LICENSE`](LICENSE).
+Cite it with the metadata in `CITATION.cff`. The code is released under `LICENSE`.
