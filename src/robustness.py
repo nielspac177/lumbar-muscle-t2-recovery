@@ -228,6 +228,30 @@ def reference_sensitivity(seg: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)[cols]
 
 
+def full_instrument_multiplicity(seg: pd.DataFrame) -> pd.DataFrame:
+    """Multiplicity over the full instrument grid, INCLUDING the originally primary
+    endpoint. The primary time-course correction covers ODI and Global Physical Health;
+    this sensitivity adds PROMIS Physical Function (the instrument prespecified as the
+    original primary) to the family — 3 instruments x 2 muscles x 4 timepoints — and
+    applies Holm/FDR jointly, testing whether the surviving 3-month ODI result persists
+    once the original primary is accounted for. Deterministic.
+    """
+    from .analysis import delta_adjusted
+    exp = {"z_iliopsoas_rcord": "Iliopsoas", "z_deep_back_rcord": "Deep back"}
+    rows = []
+    for out in ["odi", "ph", "pf"]:
+        for e, ml in exp.items():
+            for tp in ["6w", "3m", "6m", "1y"]:
+                r = delta_adjusted(seg, e, out, tp)
+                rows.append({"instrument": out, "muscle": ml, "tp": tp, "n": r["n"],
+                             "beta": r["beta"], "ci_low": r["ci_low"],
+                             "ci_high": r["ci_high"], "p": r["p"]})
+    d = pd.DataFrame(rows)
+    d["p_holm"] = multipletests(d["p"], method="holm")[1]
+    d["p_fdr"] = multipletests(d["p"], method="fdr_bh")[1]
+    return d
+
+
 def build_robustness_table(seg: pd.DataFrame) -> pd.DataFrame:
     """Concatenate all robustness analyses into one long, tidy table."""
     parts = []

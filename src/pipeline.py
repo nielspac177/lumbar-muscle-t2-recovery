@@ -39,6 +39,7 @@ from .robustness import (
     fragility_index,
     ipw_headline,
     reference_sensitivity,
+    full_instrument_multiplicity,
 )
 
 
@@ -71,6 +72,7 @@ def run(config_path: str = "config.yaml", outdir="results", figdir="figures"):
     frag = fragility_index(seg)            # headline ODI-MCID fragility index
     ipw = ipw_headline(seg)                # attrition-weighted headline sensitivity
     refsens = reference_sensitivity(seg)   # primary result vs choice of internal reference
+    fullmult = full_instrument_multiplicity(seg)  # multiplicity incl. the original primary (PF)
 
     robustness.to_csv(f"{outdir}/robustness_table.csv", index=False)
     ph_sweep.to_csv(f"{outdir}/ph_mcid_threshold_sweep.csv", index=False)
@@ -87,6 +89,7 @@ def run(config_path: str = "config.yaml", outdir="results", figdir="figures"):
     pd.DataFrame([frag]).to_csv(f"{outdir}/fragility.csv", index=False)
     ipw.to_csv(f"{outdir}/ipw_headline.csv", index=False)
     refsens.to_csv(f"{outdir}/reference_sensitivity.csv", index=False)
+    fullmult.to_csv(f"{outdir}/multiplicity_full.csv", index=False)
 
     # PRIMARY figure: cord-normalized T2 signal vs change in PH and ODI over time
     jama_forest(t2tc, out=f"{figdir}/forest_t2_timecourse.png",
