@@ -107,8 +107,21 @@ def build_muscle_exposures(data) -> pd.DataFrame:
     """
     vert = drop_implausible(_muscle_col(data, "Vertebra", VOL))
     cord = _muscle_col(data, "Spinal cord", QUAL)
+    # Alternative internal references for the reference-sensitivity analysis: vertebral
+    # marrow and intervertebral disc mean intensity. Unlike the central-canal ("cord")
+    # reference — which sits in the compartment compressed by stenosis — these lie
+    # outside the canal and let us test whether the primary association is an artifact
+    # of the normalizing denominator (see robustness.reference_sensitivity).
+    def _ref_or_nan(label):
+        s = _muscle_col(data, label, QUAL)
+        return s if s is not None else pd.Series(np.nan, index=data.index)
+    vert_q = _ref_or_nan("Vertebra")
+    disc_q = _ref_or_nan("intervertebral_discs")
     out = pd.DataFrame(index=data.index)
     out["vertebra_vol"] = vert
+    out["cord_qual"] = cord
+    out["vertebra_qual"] = vert_q
+    out["disc_qual"] = disc_q
     for name, (l, r) in MUSCLES.items():
         lv = drop_implausible(_muscle_col(data, l, VOL))
         rv = drop_implausible(_muscle_col(data, r, VOL))
@@ -124,6 +137,8 @@ def build_muscle_exposures(data) -> pd.DataFrame:
         out[f"{name}_cv"] = (sd / mean).replace([np.inf, -np.inf], np.nan)
         out[f"{name}_spread"] = ((p95 - p5) / med.replace(0, np.nan)).replace([np.inf, -np.inf], np.nan)
         out[f"{name}_rcord"] = (mean / cord).replace([np.inf, -np.inf], np.nan)
+        out[f"{name}_rvert"] = (mean / vert_q).replace([np.inf, -np.inf], np.nan)
+        out[f"{name}_rdisc"] = (mean / disc_q).replace([np.inf, -np.inf], np.nan)
 
     def z(s):
         return (s - s.mean()) / s.std()

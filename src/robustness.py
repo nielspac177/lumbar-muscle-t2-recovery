@@ -175,6 +175,59 @@ def ipw_headline(seg: pd.DataFrame) -> pd.DataFrame:
         "n": int(m.nobs)}])
 
 
+def reference_sensitivity(seg: pd.DataFrame) -> pd.DataFrame:
+    """Sensitivity of the primary iliopsoas T2 associations to the internal reference.
+
+    The primary exposure normalizes muscle T2 to the central-canal ("cord") structure,
+    which sits in the compartment compressed by stenosis. This tests whether the
+    associations persist when the muscle signal is instead (a) normalized to references
+    outside the canal (vertebral marrow, intervertebral disc), (b) left unnormalized
+    (raw mean intensity), and (c) decomposed into its numerator (muscle signal) and
+    denominator (canal reference) as separate predictors, plus an influence check
+    (refit dropping the three highest Cook's-distance observations). Deterministic.
+    """
+    rows = []
+    specs = [("odi", "3m"), ("odi", "1y"), ("ph", "3m")]
+    refs = [("muscle / cord (primary)", "z_iliopsoas_rcord"),
+            ("muscle / vertebral marrow", "z_iliopsoas_rvert"),
+            ("muscle / disc", "z_iliopsoas_rdisc"),
+            ("raw muscle intensity (no reference)", "z_iliopsoas_qual")]
+
+    def _one(d, exp, formula, base):
+        m = smf.ols(formula, d).fit(cov_type="HC3")
+        ci = m.conf_int().loc[exp]
+        return {"n": int(m.nobs), "beta": float(m.params[exp]),
+                "ci_low": float(ci[0]), "ci_high": float(ci[1]), "p": float(m.pvalues[exp])}
+
+    for out, tp in specs:
+        fu, base = f"{out}_{tp}", f"{out}_base"
+        for lab, exp in refs:
+            d = seg.dropna(subset=[fu, base, exp, "age", "sex"]).copy()
+            d["_delta"] = d[fu] - d[base]
+            rows.append({"outcome": out, "tp": tp, "analysis": lab, "exposure": exp,
+                         **_one(d, exp, f"_delta ~ {exp} + age + C(sex) + {base}", base)})
+        # numerator / denominator decomposition
+        d = seg.dropna(subset=[fu, base, "z_iliopsoas_qual", "z_cord_qual", "age", "sex"]).copy()
+        d["_delta"] = d[fu] - d[base]
+        for term, tag in [("z_iliopsoas_qual", "decomposition: muscle numerator"),
+                          ("z_cord_qual", "decomposition: canal denominator")]:
+            rows.append({"outcome": out, "tp": tp, "analysis": tag, "exposure": term,
+                         **_one(d, term,
+                                f"_delta ~ z_iliopsoas_qual + z_cord_qual + age + C(sex) + {base}", base)})
+        # influence: refit primary model dropping the 3 highest Cook's-distance points
+        d = seg.dropna(subset=[fu, base, "z_iliopsoas_rcord", "age", "sex"]).copy()
+        d["_delta"] = d[fu] - d[base]
+        ols = smf.ols(f"_delta ~ z_iliopsoas_rcord + age + C(sex) + {base}", d).fit()
+        drop = np.argsort(ols.get_influence().cooks_distance[0])[::-1][:3]
+        d2 = d.drop(d.index[drop])
+        rows.append({"outcome": out, "tp": tp, "analysis": "muscle / cord (drop top-3 influential)",
+                     "exposure": "z_iliopsoas_rcord",
+                     **_one(d2, "z_iliopsoas_rcord",
+                            f"_delta ~ z_iliopsoas_rcord + age + C(sex) + {base}", base)})
+    cols = ["outcome", "tp", "analysis", "exposure", "n", "beta", "ci_low", "ci_high", "p"]
+    return pd.DataFrame(rows)[cols]
+
+
 def build_robustness_table(seg: pd.DataFrame) -> pd.DataFrame:
     """Concatenate all robustness analyses into one long, tidy table."""
     parts = []

@@ -34,7 +34,12 @@ from .methods_figures import (
     segmentation_workflow,
     strobe_flow,
 )
-from .robustness import build_robustness_table, fragility_index, ipw_headline
+from .robustness import (
+    build_robustness_table,
+    fragility_index,
+    ipw_headline,
+    reference_sensitivity,
+)
 
 
 def prepare(config_path: str = "config.yaml"):
@@ -65,6 +70,7 @@ def run(config_path: str = "config.yaml", outdir="results", figdir="figures"):
     figdata = build_figure_data(seg)       # tertile MCID rates + PF trajectory (for figs)
     frag = fragility_index(seg)            # headline ODI-MCID fragility index
     ipw = ipw_headline(seg)                # attrition-weighted headline sensitivity
+    refsens = reference_sensitivity(seg)   # primary result vs choice of internal reference
 
     robustness.to_csv(f"{outdir}/robustness_table.csv", index=False)
     ph_sweep.to_csv(f"{outdir}/ph_mcid_threshold_sweep.csv", index=False)
@@ -80,6 +86,7 @@ def run(config_path: str = "config.yaml", outdir="results", figdir="figures"):
     figdata["pf_trajectory"].to_csv(f"{outdir}/pf_trajectory.csv", index=False)
     pd.DataFrame([frag]).to_csv(f"{outdir}/fragility.csv", index=False)
     ipw.to_csv(f"{outdir}/ipw_headline.csv", index=False)
+    refsens.to_csv(f"{outdir}/reference_sensitivity.csv", index=False)
 
     # PRIMARY figure: cord-normalized T2 signal vs change in PH and ODI over time
     jama_forest(t2tc, out=f"{figdir}/forest_t2_timecourse.png",
